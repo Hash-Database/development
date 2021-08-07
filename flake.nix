@@ -36,19 +36,23 @@
       #  dash-bootstrap-components = self.packages.x86_64-linux.dash-bootstrap-components;
       #};
 
-
+      nixosModules.hashdb = import ./modules/hashdb.nix;
+      nixosModule = self.nixosModules.hashdb;
 
       devShell.x86_64-linux =
         with import nixpkgs { system = "x86_64-linux"; };
         let customPython = python3.withPackages
           (p: [
             self.packages.x86_64-linux.neo4j
-            self.packages.x86_64-linux.swh-model
           ]);
         in
         mkShell
           {
             buildInputs = [
+              self.packages.x86_64-linux.swh-model # swh-identify
+              nix # nix-prefetch-url, nix-hash
+              nix-prefetch-scripts # nix-prefetch-{bzr,cvs,git,hg,svn}
+              coreutils # various hashes
               customPython
             ];
           };
